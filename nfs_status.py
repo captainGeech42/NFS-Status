@@ -174,8 +174,17 @@ def email_alert(failure):
 
 # Mount RAID array
 def mount_raid(device, mount_point, umount=True):
-    os.system("umount -fl {mount_point}".format(mount_point=mount_point))
+    if umount:
+        os.system("umount -fl {mount_point}".format(mount_point=mount_point))
+    
     os.system("mount {device} {mount_point}".format(device=device, mount_point=mount_point))
+
+
+# Check if backup device is mounted
+# Returns true if mounted
+def raid_mounted(device, mount_point):
+    df = get_stdout("df -h")
+    return device in df and mount_point in df
 
 
 # Run tests
@@ -191,6 +200,12 @@ def main(argv):
     mount_point = "/mnt/logs" # Local mount point for the NFS share
     test_fp = os.path.join(mount_point, "status.test") # Absolute path to test file (script will read/write it)
     raid = "/dev/sda1" # Block device to mount if NFS is unavailable
+
+    # Check if backup device is already mounted
+    if raid_mounted(raid, mount_point):
+        if debug:
+            print("backup already mounted, exiting")
+        return 1
 
     runner = TestRunner()
 
@@ -219,6 +234,8 @@ def main(argv):
     runner.add_test(test6)
 
     runner.run_tests()
+
+    return 0
 
 
 # entry point

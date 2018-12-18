@@ -84,8 +84,11 @@ class TestRunner:
 
 # Returns the stdout of a command (as a str)
 def get_stdout(cmd):
-    result = subprocess.run(cmd.split(" "), stdout=subprocess.PIPE)
-    return result.stdout.decode("utf-8")
+    try:
+        result = subprocess.run(cmd.split(" "), stdout=subprocess.PIPE, timeout=5) # 5 sec timeout
+        return result.stdout.decode("utf-8")
+    except subprocess.TimeoutExpired:
+        return ""
 
 
 # Returns datetime str

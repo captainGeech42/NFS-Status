@@ -37,8 +37,6 @@ class Test:
         self.fail = {}
         self.success = {}
 
-        self.add_fail_action(email_alert, ["{} test failed".format(self.name)])
-
 
     def add_fail_action(self, func, args):
         self.fail[func] = args
@@ -53,6 +51,9 @@ class Test:
         if debug:
             print("test \"{}\" returned {}".format(self.name, ret))
         if not ret:
+            if self.email:
+                self.add_fail_action(email_alert, ["{} test failed".format(self.name)])
+
             for f in self.fail.keys():
                 if debug:
                     print("executing {}({})".format(repr(f), self.fail[f]))

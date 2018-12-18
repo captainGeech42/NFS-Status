@@ -36,3 +36,5 @@ You also have to create the test file with some contents before running the scri
 ## Disclaimer
 
 This script is still being tested so there may be some issues. If something breaks related to the script, please submit an issue.
+
+Also, in an ideal world the `Test`/`TestRunner` classes wouldn't be in the same file, but everything in one file makes it easier to push out to remote servers, which is how I'm using this script. It should be pretty easy to move those classes to their own file(s) if you want to do that (a PR for that would be cool).

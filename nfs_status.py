@@ -221,7 +221,7 @@ def main(argv):
     mount_point = "/mnt/logs" # Local mount point for the NFS share
     test_fp = os.path.join(mount_point, "status.test") # Absolute path to test file (script will read/write it)
     raid = "/dev/sda1" # Block device to mount if NFS is unavailable
-    log_fp = "/var/log/nfs_status.log" # Filepath to log
+    log_fp = "/var/log/nfs_status/nfs_status.log" # Filepath to log
 
     log("starting")
 

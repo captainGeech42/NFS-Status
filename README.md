@@ -19,7 +19,7 @@ This script only works on Linux. If you want to make a Windows version, please s
 
 ## Setup
 
-The following changes must be made to the script (they all have a TODO comment next to them)
+The following changes must be made to the `nfs_status.py` script (they all have a TODO comment next to them)
  - Configure your email settings
    - To/From
    - SMTP Server/Port
@@ -33,6 +33,14 @@ The following changes must be made to the script (they all have a TODO comment n
  - Configure your log settings
    - Filepath to write logs to
      - If you don't want logs written to disk, don't set the `log_fp` global variable. The `log()` function will skip writing to disk if `log_fp` is set to `None` (which is the value it's initialized to)
+
+For the `rotate.py` script, just change the filepath to the persistent log you set in `nfs_status.py`.
+
+You'll want to put this in your crontab most likely. Edit your crontab with `crontab -e`, and add the following (adjust timing for `nfs_status.py` as you wish):
+```
+0 0 * * * /path/to/rotate.py # midnight everyday
+* * * * * ( sleep 30; /path/to/nfs_status.py ) # halfway through every minute
+```
 
 You also have to create the test file with some contents before running the script for the first time. Each time it runs it will put the current timestamp in the test file, but it needs that file to exist initially so that the `share_readable()` test passes.
 

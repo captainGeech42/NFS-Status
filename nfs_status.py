@@ -14,6 +14,7 @@ import sys
 import textwrap
 
 debug = False
+log_fp = None
 
 # To add a new test, do the following:
 # 1. Make a function that does the test (return a bool)
@@ -48,20 +49,18 @@ class Test:
 
     def run(self):
         ret = self.func(*self.args)
-        if debug:
-            print("test \"{}\" returned {}".format(self.name, ret))
+        log("test \"{}\" {}".format(self.name, ("passed" if ret else "failed")), error=(not ret))
+
         if not ret:
             if self.email:
                 self.add_fail_action(email_alert, ["{} test failed".format(self.name)])
 
             for f in self.fail.keys():
-                if debug:
-                    print("executing {}({})".format(repr(f), self.fail[f]))
+                log("executing {}({})".format(repr(f), self.fail[f]))
                 f(*self.fail[f])
         else:
             for f in self.success.keys():
-                if debug:
-                    print("executing {}({})".format(repr(f), self.success[f]))
+                log("executing {}({})".format(repr(f), self.success[f]))
                 f(*self.success[f])
         return ret
 
@@ -95,6 +94,23 @@ def get_stdout(cmd):
 def get_ts():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+
+# Write log entry
+def log(msg, error=False):
+    msg = "{ts} [{status}] {msg}".format(ts=get_ts(), status=("error" if error else "info"), msg=msg)
+
+    if debug:
+        print(msg)
+
+    if log_fp is None:
+        return
+
+    try:
+        with open(log_fp, "a") as f:
+            f.write("{}\n".format(msg))
+    except Exception as e:
+        print("error writing to log file {}: {}\n".format(log_fp, str(e)), file=sys.stderr)
+        
 
 # Ping test
 # Returns true if ping succeeds
@@ -196,6 +212,8 @@ def main(argv):
         global debug
         debug = True
 
+    global log_fp
+
     # TODO Set these values according to your configuration
     # TODO You must put something in the test file before running for the first time
     host = "172.16.1.1" # IP/DNS for your NFS server
@@ -203,11 +221,13 @@ def main(argv):
     mount_point = "/mnt/logs" # Local mount point for the NFS share
     test_fp = os.path.join(mount_point, "status.test") # Absolute path to test file (script will read/write it)
     raid = "/dev/sda1" # Block device to mount if NFS is unavailable
+    log_fp = "/var/log/nfs_status.log" # Filepath to log
+
+    log("starting")
 
     # Check if backup device is already mounted
     if raid_mounted(raid, mount_point):
-        if debug:
-            print("backup already mounted, exiting")
+        log("backup already mounted, exiting", error=True)
         return 1
 
     runner = TestRunner()
@@ -237,6 +257,8 @@ def main(argv):
     runner.add_test(test6)
 
     runner.run_tests()
+
+    log("finished, all tests passed")
 
     return 0
 

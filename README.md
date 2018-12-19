@@ -30,8 +30,13 @@ The following changes must be made to the script (they all have a TODO comment n
    - Local Mount Point
    - Test file path
    - Local device to mount if NFS is unavailable
+ - Configure your log settings
+   - Filepath to write logs to
+     - If you don't want logs written to disk, don't set the `log_fp` global variable. The `log()` function will skip writing to disk if `log_fp` is set to `None` (which is the value it's initialized to)
 
 You also have to create the test file with some contents before running the script for the first time. Each time it runs it will put the current timestamp in the test file, but it needs that file to exist initially so that the `share_readable()` test passes.
+
+Each test that gets ran will be written to the log with a timestamp, so you can keep track of what's being run when.
 
 ## Disclaimer
 

@@ -12,12 +12,11 @@ def get_yesterday():
 
 def compress(filename):
     new_fp = "{}.{}".format(filename, get_yesterday())
-    os.system("mv {0} {0}.{1}".format(filename, new_fp))
+    os.system("mv {} {}".format(filename, new_fp))
     os.system("gzip {}".format(new_fp))
 
 
 def main(argv):
-    # TODO set log filename
     log_fp = "/var/log/nfs_status/nfs_status.log"
     compress(log_fp)
 
